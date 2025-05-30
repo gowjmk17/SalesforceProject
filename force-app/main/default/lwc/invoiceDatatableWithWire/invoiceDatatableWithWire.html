@@ -1,0 +1,41 @@
+<template>
+    <template if:true={showCard}>
+<lightning-card title="Invoices Data (Grid Table View)" icon-name="standard:contact">
+        <div class="slds-p-around_medium">
+            <template if:true={data}>
+                <div class="slds-grid slds-grid_vertical-align-center slds-border_bottom slds-p-around_x-small slds-text-title_bold">
+                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Number</div>
+                    <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Invoice Date</div>
+                    <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Buyer Name</div>
+                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Status</div>
+                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Action</div>
+                </div>  
+
+                <template for:each={data} for:item="invoice">
+                    <div key={invoice.Id} class="slds-grid slds-grid_align-center slds-border_bottom slds-p-around_x-small">
+                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
+                            <a href={invoice.invoiceUrl} target="_blank">{invoice.Name}</a>
+                        </div>
+                        <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Date__c}</div>
+                        <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">
+                            <a href={invoice.buyerUrl} target="_blank">{invoice.BuyerName}</a>
+                        </div>
+                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Status__c}</div>
+                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
+                            <lightning-button variant="brand" label="Open" onclick={handleOpen} data-id={invoice.Id}></lightning-button>
+                        </div>
+                    </div>
+                </template>
+            </template>
+
+            <template if:true={error}>
+                <p class="slds-text-color_error">{error}</p>
+            </template>
+        </div>
+    </lightning-card>
+
+    </template>
+    
+</template>
+
+

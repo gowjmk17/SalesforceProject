@@ -1,0 +1,136 @@
+<template>
+    <lightning-card title="Invoice Header" icon-name="standard:account">
+                <lightning-button 
+            slot="actions"
+            label="Add Products"
+            onclick={openModal}
+            variant="brand">
+        </lightning-button>
+        
+        <br/>
+        <div class="custom-datatable" style="width: auto;">
+        <template if:true={invoiceData}>
+            <lightning-datatable 
+                key-field="Id"
+                data={invoiceData}
+                columns={invoiceColumns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        </div>
+    </lightning-card>
+
+    <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+        <br/>
+        <div class="custom-datatable" style="width: auto;">
+        <template if:true={lineItems}>
+            <lightning-datatable 
+                key-field="Id"
+                data={lineItems}
+                columns={lineItemColumns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        </div>
+    </lightning-card>
+
+    <template if:true={error}>
+    <div class="slds-text-color_error">{error.body.message}</div>
+</template>
+
+<!-- Modal for Adding New Product -->
+<template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal Header -->
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title">Add New Product</h2>
+                </header>
+
+                <!-- Modal Body with Product Form -->
+            <div class="slds-modal__content slds-p-around_medium">
+    <lightning-record-edit-form object-api-name="Invoice_Line__c" onsuccess={handleSuccess}>
+        <lightning-messages></lightning-messages>
+        <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input-field field-name="Product__c"></lightning-input-field>
+                <lightning-input-field field-name="Price__c"></lightning-input-field>
+              </div>
+            <div class="slds-col slds-size_1-of-2">
+                <lightning-input-field field-name="Quantity__c"></lightning-input-field>
+                <lightning-input-field field-name="Taxes__c"></lightning-input-field>
+            </div>
+        </div>
+        <lightning-button class="slds-m-top_small" variant="brand" type="submit" label="Save"></lightning-button>
+    </lightning-record-edit-form>
+</div>
+
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeModal}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+</template>
+
+
+<!-- <template>
+    <lightning-card title="Invoice Header" icon-name="standard:account">
+        <template if:true={invoiceData}>
+            <table class="slds-table slds-table_bordered">
+                <tr>
+                    <th>Invoice Number</th>
+                    <th>Invoice Date</th>
+                    <th>Buyer Name</th>
+                    <th>Seller Name</th>
+                    <th>Invoice Status</th>
+                    <th>Pending Amount</th>
+                </tr>
+                <tr>
+                    <td>{invoiceData.Name}</td>
+                    <td>{invoiceData.Invoice_Date__c}</td>
+                    <td>{invoiceData.Buyer_Name__r.Name}</td>
+                    <td>{invoiceData.Seller_Name__r.Name}</td>
+                    <td>{invoiceData.Invoice_Status__c}</td>
+                    <td>{invoiceData.Pending_Amount__c}</td>
+                </tr>
+            </table>
+            <br/>
+            <lightning-button label="Add Products" variant="brand"></lightning-button>
+        </template>
+    </lightning-card>
+
+    <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+        <template if:true={lineItems}>
+            <table class="slds-table slds-table_bordered">
+                <tr>
+                    <th>Product Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Product Total</th>
+                    <th>Taxes</th>
+                    <th>Grand Total</th>
+                </tr>
+                <template for:each={lineItems} for:item="item">
+                    <tr key={item.Id}>
+                        <td>{item.Product__c}</td>
+                        <td>{item.Quantity__c}</td>
+                        <td>{item.Price__c}</td>
+                        <td>{item.Product_Total__c}</td>
+                        <td>{item.Taxes__c}</td>
+                        <td>{item.Grand_Total__c}</td>
+                    </tr>
+                </template>
+            </table>
+        </template>
+    </lightning-card>
+
+    <template if:true={error}>
+        <div class="slds-text-color_error">{error.body.message}</div>
+    </template>
+</template> -->
