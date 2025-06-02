@@ -1,5 +1,6 @@
 <template>
-    <template if:true={showCard}>
+    <!-- Invoice Section-->
+    <template if:true={showInvoice}>
 <lightning-card title="Invoices Data (Grid Table View)" icon-name="standard:contact">
         <div class="slds-p-around_medium">
             <template if:true={data}>
@@ -35,7 +36,133 @@
     </lightning-card>
 
     </template>
-    
+
+
+ <!-- Invoice Line Details Section -->
+    <template if:true={showInvoiceLine}>
+            <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+        <div slot="actions" class="slds-grid slds-gutters">
+        <div class="slds-col">
+            <lightning-button 
+                label="Add Products"
+                onclick={openAddProductClick}
+                variant="brand">
+            </lightning-button>
+        </div>
+        <div class="slds-col">
+            <lightning-button 
+                label="Back"
+                onclick={openInvoiceTable}
+                variant="neutral">
+            </lightning-button>
+        </div>
+    </div>
+
+        <br/>
+        <div class="custom-datatable" style="width: auto;">
+        <template if:true={invoiceData}>
+            <lightning-datatable 
+                key-field="Id"
+                data={invoiceData}
+                columns={invoiceColumns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        </div>
+    </lightning-card>
+
+    <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+        <br/>
+        <div class="custom-datatable" style="width: auto;">
+        <template if:true={pagedLineItems}>
+            <lightning-datatable 
+                key-field="Id"
+                data={pagedLineItems}
+                columns={lineItemColumns}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+        </template>
+        
+        <!-- Pagination Controls -->
+                <div class="slds-m-top_medium slds-align_absolute-center">
+                    <lightning-button label="Previous" onclick={goToPrevious} disabled={pagePrevious}></lightning-button>
+                    <span class="slds-m-horizontal_small">Page {currentPage} of {totalPages}</span>
+                    <lightning-button label="Next" onclick={goToNext} disabled={pageNext}></lightning-button>
+                </div>
+        </div>
+    </lightning-card>
+
+    <template if:true={error}>
+    <div class="slds-text-color_error">{error.body.message}</div>
 </template>
+
+<!-- Modal for Adding New Product -->
+<template if:true={showAddProduct}>
+        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <!-- Modal Header -->
+                <header class="slds-modal__header">
+                    <h2 class="slds-modal__title">Add New Product</h2>
+                </header>
+
+         <!-- Modal Body with Product Form -->
+            <div class="slds-modal__content slds-p-around_medium">
+               <div class="slds-grid slds-wrap slds-gutters">
+            <div class="slds-col slds-size_1-of-2">
+                            <lightning-combobox
+                                name="productName"
+                                label="Product Name"
+                                value={productName}
+                                options={productOptions}
+                                onchange={handleInputChange}>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="number"
+                                name="quantity"
+                                label="Quantity"
+                                value={quantity}
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="number"
+                                name="price"
+                                label="Price"
+                                value={price}
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input
+                                type="number"
+                                name="taxes"
+                                label="Taxes"
+                                value={taxes}
+                                onchange={handleInputChange}>
+                            </lightning-input>
+                        </div>
+        </div>
+        <lightning-button class="slds-m-top_small" variant="brand" type="submit" label="Save" onsuccess={handleSave}></lightning-button>
+    </div>
+
+                <!-- Modal Footer -->
+                <footer class="slds-modal__footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeAddProductClick}></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+
+    </template>
+
+
+</template>
+
+
 
 

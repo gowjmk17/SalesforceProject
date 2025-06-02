@@ -1,5 +1,6 @@
-<template>
-    <lightning-card title="Invoice Header" icon-name="standard:account">
+<template >
+    <template if:true={showInvoice}>
+            <lightning-card title="Invoice Header" icon-name="standard:account">
                 <lightning-button 
             slot="actions"
             label="Add Products"
@@ -75,6 +76,8 @@
         <div class="slds-backdrop slds-backdrop_open"></div>
     </template>
 
+
+    </template>
 
 </template>
 
