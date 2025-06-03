@@ -1,114 +1,103 @@
 <template>
-    <!-- Invoice Section-->
-    <template if:true={showInvoice}>
-<lightning-card title="Invoices Data (Grid Table View)" icon-name="standard:contact">
-        <div class="slds-p-around_medium">
+   <!-- Invoice Section-->
+   <template if:true={showInvoice}>
+      <lightning-card title="Invoices Data (Grid Table View)" icon-name="standard:contact">
+         <div class="slds-p-around_medium">
             <template if:true={data}>
-                <div class="slds-grid slds-grid_vertical-align-center slds-border_bottom slds-p-around_x-small slds-text-title_bold">
-                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Number</div>
-                    <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Invoice Date</div>
-                    <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Buyer Name</div>
-                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Status</div>
-                    <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Action</div>
-                </div>  
-
-                <template for:each={data} for:item="invoice">
-                    <div key={invoice.Id} class="slds-grid slds-grid_align-center slds-border_bottom slds-p-around_x-small">
-                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
-                            <a href={invoice.invoiceUrl} target="_blank">{invoice.Name}</a>
-                        </div>
-                        <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Date__c}</div>
-                        <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">
-                            <a href={invoice.buyerUrl} target="_blank">{invoice.BuyerName}</a>
-                        </div>
-                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Status__c}</div>
-                        <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
-                            <lightning-button variant="brand" label="Open" onclick={handleOpen} data-id={invoice.Id}></lightning-button>
-                        </div>
-                    </div>
-                </template>
+               <div class="slds-grid slds-grid_vertical-align-center slds-border_bottom slds-p-around_x-small slds-text-title_bold">
+                  <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Number</div>
+                  <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Invoice Date</div>
+                  <div class="slds-col slds-size_3-of-12 slds-grid slds-grid_align-center">Buyer Name</div>
+                  <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Invoice Status</div>
+                  <div class="slds-col slds-size_2-of-12 slds-grid slds-grid_align-center">Action</div>
+               </div>
+               <template for:each={data} for:item="invoice">
+                  <div key={invoice.Id} class="slds-grid slds-grid_align-center slds-border_bottom slds-p-around_x-small">
+                     <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
+                        <a href={invoice.invoiceUrl} target="_blank">{invoice.Name}</a>
+                     </div>
+                     <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Date__c}</div>
+                     <div class="slds-col slds-size_3-of-12 slds-grid slds-align_absolute-center">
+                        <a href={invoice.buyerUrl} target="_blank">{invoice.BuyerName}</a>
+                     </div>
+                     <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">{invoice.Invoice_Status__c}</div>
+                     <div class="slds-col slds-size_2-of-12 slds-grid slds-align_absolute-center">
+                        <lightning-button variant="brand" label="Open" onclick={handleOpen} data-id={invoice.Id}></lightning-button>
+                     </div>
+                  </div>
+               </template>
             </template>
-
             <template if:true={error}>
-                <p class="slds-text-color_error">{error}</p>
+               <p class="slds-text-color_error">{error}</p>
             </template>
-        </div>
-    </lightning-card>
-
-    </template>
-
-
- <!-- Invoice Line Details Section -->
-    <template if:true={showInvoiceLine}>
-            <lightning-card title="Invoice Line Detail" icon-name="standard:product">
-        <div slot="actions" class="slds-grid slds-gutters">
-        <div class="slds-col">
-            <lightning-button 
-                label="Add Products"
-                onclick={openAddProductClick}
-                variant="brand">
-            </lightning-button>
-        </div>
-        <div class="slds-col">
-            <lightning-button 
-                label="Back"
-                onclick={openInvoiceTable}
-                variant="neutral">
-            </lightning-button>
-        </div>
-    </div>
-
-        <br/>
-        <div class="custom-datatable" style="width: auto;">
-        <template if:true={invoiceData}>
-            <lightning-datatable 
-                key-field="Id"
-                data={invoiceData}
-                columns={invoiceColumns}
-                hide-checkbox-column="true">
-            </lightning-datatable>
-        </template>
-        </div>
-    </lightning-card>
-
-    <lightning-card title="Invoice Line Detail" icon-name="standard:product">
-        <br/>
-        <div class="custom-datatable" style="width: auto;">
-        <template if:true={pagedLineItems}>
-            <lightning-datatable 
-                key-field="Id"
-                data={pagedLineItems}
-                columns={lineItemColumns}
-                hide-checkbox-column="true">
-            </lightning-datatable>
-        </template>
-        
-        <!-- Pagination Controls -->
-                <div class="slds-m-top_medium slds-align_absolute-center">
-                    <lightning-button label="Previous" onclick={goToPrevious} disabled={pagePrevious}></lightning-button>
-                    <span class="slds-m-horizontal_small">Page {currentPage} of {totalPages}</span>
-                    <lightning-button label="Next" onclick={goToNext} disabled={pageNext}></lightning-button>
-                </div>
-        </div>
-    </lightning-card>
-
-    <template if:true={error}>
-    <div class="slds-text-color_error">{error.body.message}</div>
-</template>
-
-<!-- Modal for Adding New Product -->
-<template if:true={showAddProduct}>
-        <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
+         </div>
+      </lightning-card>
+   </template>
+   <!-- Invoice Line Details Section -->
+   <template if:true={showInvoiceLine}>
+      <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+         <div slot="actions" class="slds-grid slds-gutters">
+            <div class="slds-col">
+               <lightning-button 
+                  label="Add Products"
+                  onclick={openAddProductClick}
+                  variant="brand">
+               </lightning-button>
+            </div>
+            <div class="slds-col">
+               <lightning-button 
+                  label="Back"
+                  onclick={openInvoiceTable}
+                  variant="neutral">
+               </lightning-button>
+            </div>
+         </div>
+         <br/>
+         <div class="custom-datatable" style="width: auto;">
+            <template if:true={invoiceData}>
+               <lightning-datatable 
+                  key-field="Id"
+                  data={invoiceData}
+                  columns={invoiceColumns}
+                  hide-checkbox-column="true">
+               </lightning-datatable>
+            </template>
+         </div>
+      </lightning-card>
+      <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+         <br/>
+         <div class="custom-datatable" style="width: auto;">
+            <template if:true={pagedLineItems}>
+               <lightning-datatable 
+                  key-field="Id"
+                  data={pagedLineItems}
+                  columns={lineItemColumns}
+                  hide-checkbox-column="true">
+               </lightning-datatable>
+            </template>
+            <!-- Pagination Controls -->
+            <div class="slds-m-top_medium slds-align_absolute-center">
+               <lightning-button label="Previous" onclick={goToPrevious} disabled={pagePrevious}></lightning-button>
+               <span class="slds-m-horizontal_small">Page {currentPage} of {totalPages}</span>
+               <lightning-button label="Next" onclick={goToNext} disabled={pageNext}></lightning-button>
+            </div>
+         </div>
+      </lightning-card>
+      <template if:true={error}>
+         <div class="slds-text-color_error">{error.body.message}</div>
+      </template>
+      <!-- Modal for Adding New Product -->
+      <template if:true={showAddProduct}>
+         <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
             <div class="slds-modal__container">
-                <!-- Modal Header -->
-                <header class="slds-modal__header">
-                    <h2 class="slds-modal__title">Add New Product</h2>
-                </header>
-
-         <!-- Modal Body with Product Form -->
-            <div class="slds-modal__content slds-p-around_medium">
-               <div class="slds-grid slds-wrap slds-gutters">
-            <div class="slds-col slds-size_1-of-2">
+               <!-- Modal Header -->
+               <header class="slds-modal__header">
+                  <h2 class="slds-modal__title">Add New Product</h2>
+               </header>
+               <!-- Modal Body with Product Form -->
+                  <div class="slds-modal__content slds-p-around_medium">
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
                             <lightning-combobox
                                 name="productName"
                                 label="Product Name"
@@ -144,25 +133,22 @@
                                 onchange={handleInputChange}>
                             </lightning-input>
                         </div>
-        </div>
-        <lightning-button class="slds-m-top_small" variant="brand" type="submit" label="Save" onsuccess={handleSave}></lightning-button>
+                    </div>
+                </div>
+               <!-- Modal Footer -->
+               <footer class="slds-modal__footer">
+                  <div class="slds-grid slds-grid_align-center slds-gutters">
+                  <div class="slds-col slds-m-horizontal_small">
+        <lightning-button variant="brand" label="Save" onclick={handleSave}></lightning-button>
     </div>
-
-                <!-- Modal Footer -->
-                <footer class="slds-modal__footer">
-                    <lightning-button variant="neutral" label="Cancel" onclick={closeAddProductClick}></lightning-button>
-                </footer>
+              <div class="slds-col slds-m-horizontal_small">
+        <lightning-button variant="neutral" label="Cancel" onclick={closeAddProductClick}></lightning-button>
+    </div>
+                     </div>
+               </footer>
             </div>
-        </section>
-        <div class="slds-backdrop slds-backdrop_open"></div>
-    </template>
-
-
-    </template>
-
-
+         </section>
+         <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+   </template>
 </template>
-
-
-
-
