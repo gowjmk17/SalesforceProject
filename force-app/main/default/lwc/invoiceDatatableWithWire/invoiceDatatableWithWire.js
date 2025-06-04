@@ -14,10 +14,11 @@ export default class InvoiceDataCombined extends LightningElement {
     @track invoiceData = [];
     @track lineItems = [];
     @track showAddProduct = false;
+    @track selectedInvoice;
     
-    @track selectedInvoice = null;
+    
     @track productOptions = [];
-    @track productName = '';
+    @track selectedProduct = '';
     @track quantity = '';
     @track price = '';
     @track taxes = '';
@@ -25,8 +26,15 @@ export default class InvoiceDataCombined extends LightningElement {
 
     // Invoice Data Table Columns
     @track invoiceColumns = [
-        { label: 'Invoice Number', fieldName: 'Name', sortable: "true" },
-        { label: 'Invoice Date', fieldName: 'Invoice_Date__c', type: 'date' },
+        {
+            label: 'Invoice Number',
+            fieldName: 'invoiceIdUrl',
+            type: 'url',
+            typeAttributes: { label: {fieldName: 'Name'}, target: '_blank'},
+            sortable: "true",
+            cellAttributes: { alignment: 'center' }
+        },
+        { label: 'Invoice Date', fieldName: 'Invoice_Date__c', type: 'date', cellAttributes: { alignment: 'center' } },
         {
             label: 'Buyer Name',
             fieldName: 'buyerUrl',
@@ -42,7 +50,15 @@ export default class InvoiceDataCombined extends LightningElement {
             sortable: "true"
         },
         { label: 'Invoice Status', fieldName: 'Invoice_Status__c' },
-        { label: 'Pending Amount', fieldName: 'Pending_Amount__c' },
+        {
+        label: 'Open', type: 'button', typeAttributes: {
+            label: 'View',
+            name: 'view',
+            title: 'Click to view Invoice',
+            variant: 'brand',
+            iconPosition: 'center',
+        }
+    },
     ];
 
     // Line Item Columns
@@ -54,11 +70,21 @@ export default class InvoiceDataCombined extends LightningElement {
             type: 'url',
             typeAttributes: { label: { fieldName: 'ProductName' }, target: '_blank' }
         },
+         {
+            label: 'Line Item',
+            fieldName: 'invoiceLineUrl',
+            type: 'url',
+            typeAttributes: { label: {fieldName: 'invoiceLineName'}, target: '_blank'},
+            sortable: "true",
+            cellAttributes: { alignment: 'center' }
+        },
         { label: 'Quantity', fieldName: 'Quantity__c', type: 'number' },
         { label: 'Price', fieldName: 'Price__c', type: 'currency' },
         { label: 'Product Total', fieldName: 'Product_Total__c', type: 'currency' },
         { label: 'Taxes', fieldName: 'Taxes__c', type: 'currency' },
-        { label: 'Grand Total', fieldName: 'Grand_Total__c', type: 'currency' }
+        { label: 'Tax Fees', fieldName: 'Tax_Fees__c', type: 'currency' },
+        { label: 'Grand Total', fieldName: 'Grand_Total__c', type: 'currency' },
+        	
     ];
 
 
@@ -69,18 +95,19 @@ export default class InvoiceDataCombined extends LightningElement {
 
     // Fetch list of invoices
     @wire(getInvoices)
-    wiredInvoices({ error, data }) {
+    wiredInvoices({ error, data}) {
         if (data) {
             this.data = data.map(row => ({
                 Id: row.Id,
                 Name: row.Name,
+                invoiceIdUrl: '/' + row.Id,
                 Invoice_Date__c: row.Invoice_Date__c,
                 Invoice_Status__c: row.Invoice_Status__c,
                 BuyerName: row.Buyer_Name__r ? row.Buyer_Name__r.Name : '',
                 buyerUrl: row.Buyer_Name__r ? '/' + row.Buyer_Name__r.Id : '',
                 invoiceUrl: '/' + row.Id
             }));
-            this.error = undefined;
+       
         } else if (error) {
             this.error = error;
             this.data = [];
@@ -88,74 +115,75 @@ export default class InvoiceDataCombined extends LightningElement {
     }
 
     // Handler for Open button click
-    handleOpen(event) {
+    handleRowAction(event) {
         this.showInvoice = false;
-        const invoiceId = event.currentTarget.dataset.id;
+        //const invoiceId = event.currentTarget.dataset.id;
+        const row = event.detail.row; // Get the full row data
+        const invoiceId = row.Id; 
+        this.selectedInvoice = row;
+        this.showInvoiceLine = true;
         this.fetchInvoiceData(invoiceId);
-        this.selectedInvoice = event.detail.row;
+        
     }
 
     // Fetch details of selected invoice
     fetchInvoiceData(invoiceId) {
-        this.showInvoiceLine = true;
         
-        getInvoiceDetail({ invoiceId })
-            .then(result => {
-                this.invoiceData = [{
-                    Name: result.invoice.Name,
-                    Invoice_Date__c: result.invoice.Invoice_Date__c,
-                    BuyerName: result.invoice.Buyer_Name__r?.Name,
-                    buyerUrl: '/' + result.invoice.Buyer_Name__r?.Id,
-                    SellerName: result.invoice.Seller_Name__r?.Name,
-                    sellerUrl: '/' + result.invoice.Seller_Name__r?.Id,
-                    Invoice_Status__c: result.invoice.Invoice_Status__c,
-                    Pending_Amount__c: result.invoice.Pending_Amount__c
-                }];
-                this.lineItems = result.lineItems.map((item, index) => ({
-                    ...item,
-                    ProductName: item.Product__r?.Name,
-                    ProductUrl: '/' + item.Product__c,
-                    rowNumber: index + 1,
-                }));
+            this.invoiceId = invoiceId; // Ensure invoiceId is set for later use
+    
+            getInvoiceDetail({ invoiceId })
+                .then(result => {
+                    this.invoiceData = {
+                        Name: result.invoice.Name,
+                        invoiceNameUrl: '/' + result.invoice.Id,
+                        Invoice_Date__c: result.invoice.Invoice_Date__c,
+                        BuyerName: result.invoice.Buyer_Name__r?.Name,
+                        buyerUrl: '/' + result.invoice.Buyer_Name__r?.Id,
+                        SellerName: result.invoice.Seller_Name__r?.Name,
+                        sellerUrl: '/' + result.invoice.Seller_Name__r?.Id,
+                        Invoice_Status__c: result.invoice.Invoice_Status__c,
+                        Pending_Amount__c: result.invoice.Pending_Amount__c
+                    };
+                    this.lineItems = result.lineItems.map((item, index) => ({
+                        ...item,
+                        invoiceLineName: item.Name,
+                        invoiceLineUrl  : '/' + item.Id, 
+                        ProductName: item.Product__r?.Name,
+                        ProductUrl: '/' + item.Product__c,
+                        rowNumber: index + 1,
+                    }));
+    
+                    this.currentPage = 1;
+                    this.totalPages = Math.ceil(this.lineItems.length / this.pageSize);
+                    this.updatePagedLineItems();
+                    
+                    this.error = undefined;
+                })
+                .catch(error => {
+                    this.error = error;
+                    this.invoiceData = {};
+                    this.lineItems = [];
+                });
+        }
 
-                this.currentPage = 1;
-                this.totalPages = Math.ceil(this.lineItems.length / this.pageSize);
-                this.updatePagedLineItems();
-                
-                this.error = undefined;
-            })
-            .catch(error => {
-                this.error = error;
-                this.invoiceData = [];
-                this.lineItems = [];
-            });
-    }
-
-    // Modal Invice Table
-openInvoiceTable(){
+    // Open Invoice Data Table
+    openInvoiceTable(){
         this.showInvoice = true;
         this.showInvoiceLine = false;
-        this.invoiceData = [];
+        this.invoiceData = {};
         this.lineItems = [];
     }
-
-
-   
-
 
     // Pagination logic
      updatePagedLineItems() {
         const start = (this.currentPage - 1) * this.pageSize;
-     
-            const end = start + this.pageSize;
-         //this.pagedLineItems = this.lineItems.slice(start, end);
-
-               
-    this.pagedLineItems = this.lineItems
-    .slice(start, end)
-    .map((item, index) => ({
+        const end = start + this.pageSize;
+        //this.pagedLineItems = this.lineItems.slice(start, end);
+        
+        this.pagedLineItems = this.lineItems.slice(start, end)
+        .map((item, index) => ({
         ...item,
-        rowNumber: start + index + 1
+        rowNumber: start + index + 1 // Or index + 1 if you want restart from 1
     }));
     }
 
@@ -192,8 +220,6 @@ openInvoiceTable(){
         this.resetFields();
     }
 
-   
-
     // Load product options for the select input
     loadProduct() {
         getProducts()
@@ -214,7 +240,9 @@ openInvoiceTable(){
     }
 
 handleSave(){
-    if (!this.productName || !this.quantity || !this.price || !this.taxes) {
+        console.log('Selected Invoice Id:', this.invoiceId);
+
+    if (!this.selectedProduct || !this.quantity || !this.price || !this.taxes) {
         this.dispatchEvent(new ShowToastEvent({
             title: 'Missing Data',
             message: 'Please fill all fields before saving.',
@@ -225,15 +253,17 @@ handleSave(){
     }
 
     const invoiceLine = {
-        sobjectType: 'Invoice_Line__c',
-        Invoice__c: this.selectedInvoice.Id,
-        Product__c: this.productName,
-        Quantity__c: Number(this.quantity),
-        Price__c: Number(this.price),
-        Taxes__c: Number(this.taxes)
+        SobjectType: 'Invoice_Line__c',
+        My_Invoice__c: this.invoiceId,
+        Product__c: this.selectedProduct,
+        Quantity__c: this.quantity,
+        Price__c: this.price,
+        Taxes__c: this.taxes
     };
 
-    saveInvoiceLine({ invoiceLineList: [invoiceLine] })
+     this.invoiceLineList.push(invoiceLine);
+
+    saveInvoiceLine({ invoiceLineList: this.invoiceLineList})
         .then(() => {
             this.dispatchEvent(new ShowToastEvent({
                 title: 'Success',
@@ -243,7 +273,7 @@ handleSave(){
             }));
             this.showAddProduct = false;
             this.resetFields();
-            this.fetchInvoiceData(this.selectedInvoice.Id);
+            this.fetchInvoiceData(this.invoiceId);
         })
         .catch(error => {
             console.error('Error saving product:', error);
@@ -257,7 +287,7 @@ handleSave(){
 }
 
      resetFields() {
-        this.productName = '';
+        this.selectedProduct = '';
         this.quantity = '';
         this.price = '';
         this.taxes = '';
