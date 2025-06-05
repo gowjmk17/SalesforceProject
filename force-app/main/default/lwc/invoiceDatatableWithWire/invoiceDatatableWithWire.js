@@ -15,14 +15,22 @@ export default class InvoiceDataCombined extends LightningElement {
     @track lineItems = [];
     @track showAddProduct = false;
     @track selectedInvoice;
-    
-    
+        
     @track productOptions = [];
     @track selectedProduct = '';
     @track quantity = '';
     @track price = '';
     @track taxes = '';
     @track invoiceLineList = [];
+
+    @track currentPage = 1;
+    @track pageSize = 10; // 10 records per page
+    @track totalPages = 0;
+    @track pagedLineItems = [];
+
+
+    @track sortBy;
+    @track sortDirection;
 
     // Invoice Data Table Columns
     @track invoiceColumns = [
@@ -42,14 +50,7 @@ export default class InvoiceDataCombined extends LightningElement {
             typeAttributes: { label: { fieldName: 'BuyerName' }, target: '_blank' },
             sortable: "true"
         },
-        {
-            label: 'Seller Name',
-            fieldName: 'sellerUrl',
-            type: 'url',
-            typeAttributes: { label: { fieldName: 'SellerName' }, target: '_blank' },
-            sortable: "true"
-        },
-        { label: 'Invoice Status', fieldName: 'Invoice_Status__c' },
+              { label: 'Invoice Status', fieldName: 'Invoice_Status__c' },
         {
         label: 'Open', type: 'button', typeAttributes: {
             label: 'View',
@@ -68,30 +69,25 @@ export default class InvoiceDataCombined extends LightningElement {
             label: 'Product Name',
             fieldName: 'ProductUrl',
             type: 'url',
-            typeAttributes: { label: { fieldName: 'ProductName' }, target: '_blank' }
+            typeAttributes: { label: { fieldName: 'ProductName' }, target: '_blank' },
+            sortable: true
         },
          {
-            label: 'Line Item',
+            label: 'Invoice Item',
             fieldName: 'invoiceLineUrl',
             type: 'url',
             typeAttributes: { label: {fieldName: 'invoiceLineName'}, target: '_blank'},
             sortable: "true",
             cellAttributes: { alignment: 'center' }
         },
-        { label: 'Quantity', fieldName: 'Quantity__c', type: 'number' },
-        { label: 'Price', fieldName: 'Price__c', type: 'currency' },
-        { label: 'Product Total', fieldName: 'Product_Total__c', type: 'currency' },
-        { label: 'Taxes', fieldName: 'Taxes__c', type: 'currency' },
-        { label: 'Tax Fees', fieldName: 'Tax_Fees__c', type: 'currency' },
-        { label: 'Grand Total', fieldName: 'Grand_Total__c', type: 'currency' },
+        { label: 'Quantity', fieldName: 'Quantity__c', type: 'number', sortable: true},
+        { label: 'Price', fieldName: 'Price__c', type: 'currency', sortable: true},
+        { label: 'Product Total', fieldName: 'Product_Total__c', type: 'currency', sortable: true },
+        { label: 'Taxes', fieldName: 'Taxes__c', type: 'currency', sortable: true },
+        { label: 'Tax Fees', fieldName: 'Tax_Fees__c', type: 'currency', sortable: true },
+        { label: 'Grand Total', fieldName: 'Grand_Total__c', type: 'currency', sortable: true },
         	
     ];
-
-
-    @track currentPage = 1;
-    @track pageSize = 10; // 10 records per page
-    @track totalPages = 0;
-    @track pagedLineItems = [];
 
     // Fetch list of invoices
     @wire(getInvoices)
@@ -292,6 +288,30 @@ handleSave(){
         this.price = '';
         this.taxes = '';
     }
+
+
+      doSorting(event) {
+        this.sortBy = event.detail.fieldName;
+        this.sortDirection = event.detail.sortDirection;
+        this.sortData(this.sortBy, this.sortDirection, this.pagedLineItems);
+    }
+
+    sortData(fieldname, direction, columns) {
+        let parseData = JSON.parse(JSON.stringify(columns));
+        // Return the value stored in the field
+        let keyValue = (a) => {
+            return a[fieldname];
+        };
+        // cheking reverse direction
+        let isReverse = direction === 'asc' ? 1: -1;
+        // sorting data
+        parseData.sort((x, y) => {
+            x = keyValue(x) ? keyValue(x) : ''; // handling null values
+            y = keyValue(y) ? keyValue(y) : ''; // sorting values based on direction
+            return isReverse * ((x > y) - (y > x));
+        });
+        this.pagedLineItems = parseData;
+    }    
 
 }
     

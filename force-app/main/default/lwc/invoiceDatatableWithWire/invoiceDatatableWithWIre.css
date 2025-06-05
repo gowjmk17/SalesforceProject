@@ -1,12 +1,9 @@
-
-.slds-th__action  {
+/* Center header text in lightning-datatable */
+:host(.centered-header) ::part(column-header-cell) {
+    justify-content: center;
     text-align: center;
 }
 
-.slds-truncate {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    display: inline-block;
+:host(.centered-header) ::part(column-header-cell-label) {
     text-align: center;
 }

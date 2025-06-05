@@ -79,8 +79,11 @@
                  data={pagedLineItems}
                     columns={lineItemColumns}
                     column-widths-mode="fixed"
-                    class="slds-text-align_center"
-                  hide-checkbox-column="true">
+                    class="centered-header"
+                     sorted-by={sortBy}
+                   sorted-direction={sortDirection}
+                   onsort={doSorting}
+                                    hide-checkbox-column="true">
                </lightning-datatable>
             </template>
             <!-- Pagination Controls -->
