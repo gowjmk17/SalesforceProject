@@ -27,7 +27,7 @@ export default class InvoiceDataCombined extends LightningElement {
     @track pageSize = 10; // 10 records per page
     @track totalPages = 0;
     @track pagedLineItems = [];
-
+    @track rowOffset = 0;
 
     @track sortBy;
     @track sortDirection;
@@ -64,7 +64,7 @@ export default class InvoiceDataCombined extends LightningElement {
 
     // Line Item Columns
     @track lineItemColumns = [
-     { label: '', fieldName: 'rowNumber', type: 'number', cellAttributes: { alignment: 'center' } },
+     //{ label: '', fieldName: 'rowNumber', type: 'number', cellAttributes: { alignment: 'center' } },
         {
             label: 'Product Name',
             fieldName: 'ProductUrl',
@@ -124,10 +124,8 @@ export default class InvoiceDataCombined extends LightningElement {
 
     // Fetch details of selected invoice
     fetchInvoiceData(invoiceId) {
-        
-            this.invoiceId = invoiceId; // Ensure invoiceId is set for later use
-    
-            getInvoiceDetail({ invoiceId })
+         this.invoiceId = invoiceId; // Ensure invoiceId is set for later use
+                getInvoiceDetail({ invoiceId })
                 .then(result => {
                     this.invoiceData = {
                         Name: result.invoice.Name,
@@ -146,7 +144,7 @@ export default class InvoiceDataCombined extends LightningElement {
                         invoiceLineUrl  : '/' + item.Id, 
                         ProductName: item.Product__r?.Name,
                         ProductUrl: '/' + item.Product__c,
-                        rowNumber: index + 1,
+                        //rowNumber: index + 1,
                     }));
     
                     this.currentPage = 1;
@@ -174,49 +172,50 @@ export default class InvoiceDataCombined extends LightningElement {
      updatePagedLineItems() {
         const start = (this.currentPage - 1) * this.pageSize;
         const end = start + this.pageSize;
-        //this.pagedLineItems = this.lineItems.slice(start, end);
-        
-        this.pagedLineItems = this.lineItems.slice(start, end)
+        this.pagedLineItems = this.lineItems.slice(start, end);
+        this.rowOffset = start;
+
+        /* this.pagedLineItems = this.lineItems.slice(start, end)
         .map((item, index) => ({
         ...item,
         rowNumber: start + index + 1 // Or index + 1 if you want restart from 1
-    }));
+    })); */
     }
-
+// Go to the first page
   goToPrevious() {
         if (this.currentPage > 1) {
             this.currentPage--;
             this.updatePagedLineItems();
         }
     }
-
+// Go to the next page
   goToNext() {
         if (this.currentPage < this.totalPages) {
             this.currentPage++;
             this.updatePagedLineItems();
         }
     }
-
+// Check if the current page is the first page
     get pagePrevious() {
         return this.currentPage === 1;
     }
-
+// Check if the current page is the last page
     get pageNext() {
         return this.currentPage === this.totalPages;
     }
 
- // Modal handlers
-   openAddProductClick() {
+ // Open modal for adding a product
+    openAddProductClick() {
         this.showAddProduct = true;
         this.loadProduct();
     } 
-
+// Close modal for adding a product
     closeAddProductClick() {
         this.showAddProduct = false;
         this.resetFields();
     }
 
-    // Load product options for the select input
+// Load product options for the select input
     loadProduct() {
         getProducts()
             .then(result => {
@@ -229,13 +228,14 @@ export default class InvoiceDataCombined extends LightningElement {
                 console.error('Error fetching products', error);
             });
     }
-
+// Handle input changes for the form fields
      handleInputChange(event) {
         const field = event.target.name;
         this[field] = event.target.value;
     }
 
-handleSave(){
+    // Handle save action for adding a new product to the invoice
+    handleSave(){
         console.log('Selected Invoice Id:', this.invoiceId);
 
     if (!this.selectedProduct || !this.quantity || !this.price || !this.taxes) {
@@ -281,7 +281,8 @@ handleSave(){
             }));
         });
 }
-
+    
+    // Reset fields after saving
      resetFields() {
         this.selectedProduct = '';
         this.quantity = '';
@@ -289,13 +290,16 @@ handleSave(){
         this.taxes = '';
     }
 
-
+    // Handle sorting of the data table
       doSorting(event) {
         this.sortBy = event.detail.fieldName;
         this.sortDirection = event.detail.sortDirection;
         this.sortData(this.sortBy, this.sortDirection, this.pagedLineItems);
     }
-
+    // Sort data based on field name and direction
+    // This function sorts the data based on the field name and direction
+    // It takes three parameters: fieldname, direction, and columns
+    
     sortData(fieldname, direction, columns) {
         let parseData = JSON.parse(JSON.stringify(columns));
         // Return the value stored in the field

@@ -6,4 +6,24 @@
 
 :host(.centered-header) ::part(column-header-cell-label) {
     text-align: center;
+    
+}
+.slds-truncate {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+p{
+    font-size: 2rem !important;
+}
+
+.custom-text {
+    display: inline-block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
 }

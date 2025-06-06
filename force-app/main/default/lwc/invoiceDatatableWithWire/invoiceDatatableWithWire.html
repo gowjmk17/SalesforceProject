@@ -42,19 +42,19 @@
           <div class="slds-p-around_medium">
                 <div class="slds-grid slds-wrap">
                     <div class="slds-col slds-size_2-of-12">
-                        <p><strong>Invoice Number:</strong> {invoiceData.Name}</p>
+                        <p class="slds-truncate"><strong>Invoice Number: </strong> {invoiceData.Name}</p>
                     </div>
                     <div class="slds-col slds-size_2-of-12">
-                        <p><strong>Invoice Date:</strong> {invoiceData.Invoice_Date__c}</p>
+                        <p class="slds-truncate"><strong>Invoice Date: </strong> {invoiceData.Invoice_Date__c}</p>
                     </div>
                     <div class="slds-col slds-size_2-of-12">
-                        <p><strong>Buyer Name:</strong> {invoiceData.BuyerName}</p>
+                        <p class="slds-truncate"><strong>Buyer Name: </strong> {invoiceData.BuyerName}</p>
                     </div>
                     <div class="slds-col slds-size_2-of-12">
-                        <p><strong>Invoice Status:</strong> {invoiceData.Invoice_Status__c}</p>
+                        <p class="slds-truncate"><strong>Invoice Status: </strong> {invoiceData.Invoice_Status__c}</p>
                     </div>
                     <div class="slds-col slds-size_2-of-12">
-                        <p><strong>Pending Amount:</strong> {invoiceData.Pending_Amount__c}</p>
+                        <p class="slds-truncate"><strong>Pending Amount: </strong> {invoiceData.Pending_Amount__c}</p>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,9 @@
                      sorted-by={sortBy}
                    sorted-direction={sortDirection}
                    onsort={doSorting}
-                                    hide-checkbox-column="true">
+                   hide-checkbox-column="true"
+                   show-row-number-column="true"
+                   row-number-offset={rowOffset}>
                </lightning-datatable>
             </template>
             <!-- Pagination Controls -->
