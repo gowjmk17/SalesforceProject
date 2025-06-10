@@ -1,4 +1,9 @@
+
 /* Center header text in lightning-datatable */
+.slds-th__action .slds-truncate {
+    text-align: center;
+}
+
 :host(.centered-header) ::part(column-header-cell) {
     justify-content: center;
     text-align: center;

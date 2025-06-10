@@ -19,9 +19,10 @@
       </template>
 
    </template>
+
    <!-- Invoice Line Details Section -->
    <template if:true={showInvoiceLine}>
-      <lightning-card title="Invoice Line Detail" icon-name="standard:product">
+      <lightning-card title="Invoice Header" icon-name="standard:product">
          <div slot="actions" class="slds-grid slds-gutters">
             <div class="slds-col">
                <lightning-button 
@@ -68,27 +69,27 @@
                </lightning-datatable>
             </template>
          </div>  -->
-
       </lightning-card>
+      
+      <template if:true={pagedLineItems}>
+      <div class="slds-m-top_large">
       <lightning-card title="Invoice Line Detail" icon-name="standard:product">
-         <br/>
          <div class="custom-datatable" style="width: auto;">
-            <template if:true={pagedLineItems}>
                <lightning-datatable 
                   key-field="Id"
                  data={pagedLineItems}
-                    columns={lineItemColumns}
-                    column-widths-mode="fixed"
-                    class="centered-header"
-                     sorted-by={sortBy}
+                  columns={lineItemColumns}
+                  column-widths-mode="fixed"
+                  class="centered-header"
+                  sorted-by={sortBy}
                    sorted-direction={sortDirection}
                    onsort={doSorting}
                    hide-checkbox-column="true"
                    show-row-number-column="true"
                    row-number-offset={rowOffset}>
                </lightning-datatable>
-            </template>
-            <!-- Pagination Controls -->
+
+               <!-- Pagination Controls -->
             <div class="slds-m-top_medium slds-align_absolute-center">
                <lightning-button label="Previous" onclick={goToPrevious} disabled={pagePrevious}></lightning-button>
                <span class="slds-m-horizontal_small">Page {currentPage} of {totalPages}</span>
@@ -96,11 +97,17 @@
             </div>
          </div>
       </lightning-card>
+      </div> 
+            </template>
+            
       <template if:true={error}>
          <div class="slds-text-color_error">{error.body.message}</div>
       </template>
+      
       <!-- Modal for Adding New Product -->
+
       <template if:true={showAddProduct}>
+         
          <section role="dialog" tabindex="-1" aria-modal="true" class="slds-modal slds-fade-in-open">
             <div class="slds-modal__container">
                <!-- Modal Header -->

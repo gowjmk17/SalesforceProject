@@ -125,7 +125,7 @@ export default class InvoiceDataCombined extends LightningElement {
     // Fetch details of selected invoice
     fetchInvoiceData(invoiceId) {
          this.invoiceId = invoiceId; // Ensure invoiceId is set for later use
-                getInvoiceDetail({ invoiceId })
+            return  getInvoiceDetail({ invoiceId })
                 .then(result => {
                     this.invoiceData = {
                         Name: result.invoice.Name,
@@ -269,6 +269,7 @@ export default class InvoiceDataCombined extends LightningElement {
             }));
             this.showAddProduct = false;
             this.resetFields();
+            this.invoiceLineList = [];
             this.fetchInvoiceData(this.invoiceId);
         })
         .catch(error => {
